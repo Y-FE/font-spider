@@ -32,17 +32,23 @@ function Compress(webFont, options) {
         var sources = {};
         var sourceFormat = ['truetype', 'opentype'];
 
+        var remoteFiles = [];
 
         webFont.files.forEach(function(file) {
             if (RE_SERVER.test(file.url)) {
-                throw new Error('does not support remote path "' + file.url + '"');
+                remoteFiles.push(file);
+                // throw new Error('does not support remote path "' + file.url + '"');
             }
 
             if (sourceFormat.indexOf(file.format) !== -1) {
                 sources[file.format] = file;
             }
         });
-
+        
+        webFont.files = webFont.files.filter(file => remoteFiles.indexOf(file) === -1);
+        if (webFont.files.length == 0) {
+            done(null, webFont);
+        }
 
 
         this.source = sources.truetype || sources.opentype;
